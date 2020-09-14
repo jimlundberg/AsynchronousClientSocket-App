@@ -31,28 +31,26 @@ namespace AsynchronousClientSocket
         /// </summary>
         public class AsynchronousClient
         {
-            // The port number for the remote device
-            private const int Port = 11000;
-            private const string Server = "127.0.0.1";
-
             // ManualResetEvent instances signal completion
             private static readonly ManualResetEvent connectDone = new ManualResetEvent(false);
             private static readonly ManualResetEvent sendDone = new ManualResetEvent(false);
             private static readonly ManualResetEvent receiveDone = new ManualResetEvent(false);
-
-            // The response from the remote device
-            private static String response = String.Empty;
+            private const int Port = 3010;
+            private const string Server = "127.0.0.1";
+            private static String response;
 
             private static void StartClient()
             {
+                bool simulationComplete = false;
+
                 // Connect to a remote device
                 try
                 {
                     // Establish the remote endpoint for the socket
                     IPHostEntry ipHostInfo = Dns.GetHostEntry(Server);
                     IPAddress ipAddress = ipHostInfo.AddressList[0];
-                    IPEndPoint remoteEP = new IPEndPoint(ipAddress, Port); 
-                    
+                    IPEndPoint remoteEP = new IPEndPoint(ipAddress, Port);
+
                     // Create a TCP/IP socket
                     Socket client = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -61,11 +59,15 @@ namespace AsynchronousClientSocket
                     connectDone.WaitOne();
 
                     // Send test data to the remote device
-                    Send(client, "This is a test<EOF>");
+                    Send(client, "status<EOF>");
+
+                    // Wait for send with timeout
                     sendDone.WaitOne();
 
                     // Receive the response from the remote device
                     Receive(client);
+
+                    // Wait for Receive to complete or timeout
                     receiveDone.WaitOne();
 
                     // Write the response to the console
@@ -136,6 +138,8 @@ namespace AsynchronousClientSocket
             /// <param name="ar"></param>
             private static void ReceiveCallback(IAsyncResult ar)
             {
+                response = String.Empty;
+
                 try
                 {
                     // Retrieve the state object and the client socket
