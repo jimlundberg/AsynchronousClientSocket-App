@@ -33,16 +33,12 @@ namespace AsynchronousClientSocket
         {
             // The port number for the remote device
             private const int Port = 11000;
-          //private const string Server = "localhost";
             private const string Server = "127.0.0.1";
 
             // ManualResetEvent instances signal completion
-            private static readonly ManualResetEvent connectDone =
-                new ManualResetEvent(false);
-            private static readonly ManualResetEvent sendDone =
-                new ManualResetEvent(false);
-            private static readonly ManualResetEvent receiveDone =
-                new ManualResetEvent(false);
+            private static readonly ManualResetEvent connectDone = new ManualResetEvent(false);
+            private static readonly ManualResetEvent sendDone = new ManualResetEvent(false);
+            private static readonly ManualResetEvent receiveDone = new ManualResetEvent(false);
 
             // The response from the remote device
             private static String response = String.Empty;
